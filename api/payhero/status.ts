@@ -22,9 +22,9 @@ function parseBody(req: { body?: unknown }): Record<string, unknown> {
   return {};
 }
 
-// Hardcoded PayHero credentials for channel 14997. Env vars are intentionally ignored.
+// Hardcoded PayHero credentials for channel 15005. Env vars are intentionally ignored.
 const PAYHERO_AUTH_HEADER =
-  "Basic OEk0N0puUHpEYWNZbnZQV3loeXQ6UTdnUEFPY2RsN3FJQ01WM3VucVdnMXEwczh5OFVDYzNyYmJFckMwZg==";
+  "Basic OHh6ZHhWVHU4Yk42SlRsOEVzMkY6NzFnTXNCdEFnMXZlejBPU0JuYkhrTWVyb0FIWjFQZDFaNWltZ01DMA==";
 
 function getAuthHeader(): string {
   return PAYHERO_AUTH_HEADER;
