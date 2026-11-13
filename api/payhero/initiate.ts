@@ -53,10 +53,10 @@ function normalizePhoneNumber(phone: string | undefined | null): string | null {
   return null;
 }
 
-// Hardcoded PayHero credentials for channel 15194. Env vars are intentionally ignored.
+// Hardcoded PayHero credentials for channel 15193. Env vars are intentionally ignored.
 const PAYHERO_AUTH_HEADER =
   "Basic OHh6ZHhWVHU4Yk42SlRsOEVzMkY6NzFnTXNCdEFnMXZlejBPU0JuYkhrTWVyb0FIWjFQZDFaNWltZ01DMA==";
-const PAYHERO_CHANNEL_ID = 15194;
+const PAYHERO_CHANNEL_ID = 15193;
 
 function getAuthHeader(): string {
   return PAYHERO_AUTH_HEADER;
