@@ -19,19 +19,19 @@
   },
   {
     "key": "PAYHERO_API_USERNAME",
-    "value": "8xzdxVTu8bN6JTl8Es2F",
+    "value": "8I47JnPzDacYnvPWyhyt",
     "type": "encrypted",
     "target": ["production", "preview", "development"]
   },
   {
     "key": "PAYHERO_API_PASSWORD",
-    "value": "71gMsBtAg1vez0OSBnbHkMeroAHZ1Pd1Z5imgMC0",
+    "value": "Q7gPAOcdl7qICMV3unqWg1q0s8y8UCc3rbbErC0f",
     "type": "encrypted",
     "target": ["production", "preview", "development"]
   },
   {
     "key": "PAYHERO_AUTH_TOKEN",
-    "value": "Basic OHh6ZHhWVHU4Yk42SlRsOEVzMkY6NzFnTXNCdEFnMXZlejBPU0JuYkhrTWVyb0FIWjFQZDFaNWltZ01DMA==",
+    "value": "Basic OEk0N0puUHpEYWNZbnZQV3loeXQ6UTdnUEFPY2RsN3FJQ01WM3VucVdnMXEwczh5OFVDYzNyYmJFckMwZg==",
     "type": "encrypted",
     "target": ["production", "preview", "development"]
   }
