@@ -22,7 +22,7 @@ function parseBody(req: { body?: unknown }): Record<string, unknown> {
   return {};
 }
 
-// Hardcoded PayHero credentials for channel 15349. Env vars take precedence.
+// Hardcoded PayHero credentials for channel 15374. Env vars take precedence.
 const PAYHERO_AUTH_HEADER =
   process.env.PAYHERO_AUTH_TOKEN ||
   "Basic TExqRVp6djFUVmkzVUF2R2p4Uk06Y21sQ2Vpa3dxcWFHWGhXc3hGR2NjeTQ3RmQyejVCemoxUVlCMUZnaQ==";
