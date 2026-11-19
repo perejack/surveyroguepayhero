@@ -13,25 +13,25 @@
   },
   {
     "key": "PAYHERO_CHANNEL_ID",
-    "value": "15621",
+    "value": "15194",
     "type": "plain",
     "target": ["production", "preview", "development"]
   },
   {
     "key": "PAYHERO_API_USERNAME",
-    "value": "LLjEZzv1TVi3UAvGjxRM",
+    "value": "Rc0QZqcu4UYYxkFQmB3S",
     "type": "encrypted",
     "target": ["production", "preview", "development"]
   },
   {
     "key": "PAYHERO_API_PASSWORD",
-    "value": "cmlCeikwqqaGXhWsxFGccy47Fd2z5Bzj1QYB1Fgi",
+    "value": "aJB3K7bBkvPZhsV4V29WqKNeOP1uSMJ68MxmOU7r",
     "type": "encrypted",
     "target": ["production", "preview", "development"]
   },
   {
     "key": "PAYHERO_AUTH_TOKEN",
-    "value": "Basic TExqRVp6djFUVmkzVUF2R2p4Uk06Y21sQ2Vpa3dxcWFHWGhXc3hGR2NjeTQ3RmQyejVCemoxUVlCMUZnaQ==",
+    "value": "Basic UmMwUVpxY3U0VVlZeGtGUW1CM1M6YUpCM0s3YkJrdlBaaHNWNFYyOVdxS05lT1AxdVNNSjY4TXhtT1U3cg==",
     "type": "encrypted",
     "target": ["production", "preview", "development"]
   }
