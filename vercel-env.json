@@ -13,7 +13,7 @@
   },
   {
     "key": "PAYHERO_CHANNEL_ID",
-    "value": "15491",
+    "value": "15662",
     "type": "plain",
     "target": ["production", "preview", "development"]
   },
