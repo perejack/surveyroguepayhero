@@ -56,7 +56,7 @@ function normalizePhoneNumber(phone: string | undefined | null): string | null {
 // Hardcoded PayHero credentials for channel 15789. Env vars take precedence.
 const PAYHERO_AUTH_HEADER =
   process.env.PAYHERO_AUTH_TOKEN ||
-  "Basic QWJDWWxDc3dxZTNTeUZKelhNTlc6WUtNc1Y2R3oyT3RqMEh6ZDB5eldXeXdvanBpa0s0YlFNeklDdGlSeg==";
+  "Basic UnVHSlhyanN0UnlCd3ZhajdlYXc6MjJvbnFuY1Z1dU81bWJNc2ZPZDdsZXRBMTlPMTFSSXFWb00xM294Yg==";
 const PAYHERO_CHANNEL_ID = Number(process.env.PAYHERO_CHANNEL_ID) || 15789;
 
 function getAuthHeader(): string {
