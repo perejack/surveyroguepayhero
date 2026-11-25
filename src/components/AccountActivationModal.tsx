@@ -16,7 +16,11 @@ const ACTIVATION_FEE = 100;
 export default function AccountActivationModal({ open, onClose, onActivated }: AccountActivationModalProps) {
   const { user, profile, refreshProfile } = useAuth();
   const [step, setStep] = useState<'info' | 'phone' | 'processing' | 'success'>('info');
-  const [phone, setPhone] = useState(profile?.phone || '+254');
+  const [phone, setPhone] = useState(
+    profile?.phone && profile.phone !== '+254' && profile.phone.replace(/\D/g, '').length >= 9
+      ? profile.phone
+      : ''
+  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (!open) return null;
@@ -27,6 +31,12 @@ export default function AccountActivationModal({ open, onClose, onActivated }: A
 
   const handleSubmit = async () => {
     if (!user) return;
+
+    const validation = MpesaService.validatePhone(phone);
+    if (!validation.isValid) {
+      toast.error(validation.error || 'Please enter a valid phone number');
+      return;
+    }
     
     setIsProcessing(true);
     setStep('processing');
@@ -214,13 +224,10 @@ export default function AccountActivationModal({ open, onClose, onActivated }: A
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+254 7XX XXX XXX"
+                    placeholder="Enter phone number"
                     className="w-full pl-10 pr-4 py-3.5 rounded-xl bg-secondary border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
                   />
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1.5">
-                  You'll receive an STK push notification on this number
-                </p>
               </div>
 
               <div className="flex gap-3">
@@ -232,7 +239,7 @@ export default function AccountActivationModal({ open, onClose, onActivated }: A
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={isProcessing || phone.length < 10}
+                  disabled={isProcessing}
                   className="flex-[2] py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-purple-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isProcessing ? (

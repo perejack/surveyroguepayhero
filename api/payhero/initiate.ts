@@ -22,35 +22,120 @@ function parseBody(req: { body?: unknown }): Record<string, unknown> {
   return {};
 }
 
-function normalizePhoneNumber(phone: string | undefined | null): string | null {
-  if (!phone) return null;
+type PhoneValidationResult = {
+  isValid: boolean;
+  error?: string;
+  normalized?: string;
+};
 
-  const cleaned = String(phone).replace(/\D/g, "");
-
-  // If already in international format
-  if (cleaned.startsWith("254") && cleaned.length === 12) {
-    return cleaned;
+function validateAndNormalizePhone(phone: string | undefined | null): PhoneValidationResult {
+  if (!phone || !String(phone).trim()) {
+    return { isValid: false, error: "Please enter your phone number" };
   }
 
-  // If starts with a leading zero (e.g., 0712345678)
-  if (cleaned.startsWith("0") && cleaned.length === 10) {
-    return "254" + cleaned.slice(1);
+  const raw = String(phone).trim();
+  const cleaned = raw.replace(/\D/g, "");
+
+  if (!cleaned) {
+    return { isValid: false, error: "Phone number must contain digits only" };
   }
 
-  // If local Kenya format without leading zero (e.g., 712345678)
-  if ((cleaned.startsWith("7") || cleaned.startsWith("1")) && cleaned.length === 9) {
-    return "254" + cleaned;
+  // Handle +2540... or 2540... (13 digits: e.g. +25407... or +25401...)
+  if (cleaned.startsWith("2540")) {
+    if (cleaned.length < 13) {
+      return {
+        isValid: false,
+        error: `Phone number is too short (${cleaned.length}/13 digits for 2540 format). Expected complete Kenyan number.`,
+      };
+    }
+    if (cleaned.length > 13) {
+      return {
+        isValid: false,
+        error: `Phone number is too long (${cleaned.length}/13 digits). Please check the digits entered.`,
+      };
+    }
+    const prefix = cleaned.charAt(4);
+    if (prefix !== "7" && prefix !== "1") {
+      return {
+        isValid: false,
+        error: "Invalid phone prefix. Kenyan mobile numbers start with 07 or 01 (e.g. 07... or 01...).",
+      };
+    }
+    return { isValid: true, normalized: "254" + cleaned.slice(4) };
   }
 
-  // +25407XXXXXXXX typed → stripped = 25407XXXXXXXX (13 digits) — remove the extra 0
-  if (cleaned.startsWith("2540") && cleaned.length === 13) {
-    return "254" + cleaned.slice(4);
+  // Handle international format starting with 254 (12 digits, e.g. 2547XXXXXXXX or 2541XXXXXXXX)
+  if (cleaned.startsWith("254")) {
+    if (cleaned.length === 11) {
+      return { isValid: true, normalized: cleaned };
+    }
+    if (cleaned.length < 12) {
+      return {
+        isValid: false,
+        error: `Phone number is too short (${cleaned.length}/12 digits for 254 format). Expected 12 digits (e.g. 2547XXXXXXXX or 2541XXXXXXXX).`,
+      };
+    }
+    if (cleaned.length > 12) {
+      return {
+        isValid: false,
+        error: `Phone number is too long (${cleaned.length}/12 digits for 254 format). Please check the digits entered.`,
+      };
+    }
+    const prefix = cleaned.charAt(3);
+    if (prefix !== "7" && prefix !== "1") {
+      return {
+        isValid: false,
+        error: "Invalid prefix after 254. Kenyan mobile numbers must start with 2547... or 2541...",
+      };
+    }
+    return { isValid: true, normalized: cleaned };
   }
 
-  // 11-digit 254 prefix — pass through (e.g. test numbers)
-  if (cleaned.startsWith("254") && cleaned.length === 11) return cleaned;
+  // Handle local format starting with 0 (10 digits, e.g. 07XXXXXXXX or 01XXXXXXXX)
+  if (cleaned.startsWith("0")) {
+    const secondDigit = cleaned.charAt(1);
+    if (secondDigit !== "7" && secondDigit !== "1") {
+      return {
+        isValid: false,
+        error: "Invalid prefix. Kenyan mobile numbers must start with 07 or 01 (e.g. 07XXXXXXXX or 01XXXXXXXX).",
+      };
+    }
+    if (cleaned.length < 10) {
+      return {
+        isValid: false,
+        error: `Phone number is too short (${cleaned.length}/10 digits). Standard mobile numbers have 10 digits (e.g. 07XXXXXXXX or 01XXXXXXXX).`,
+      };
+    }
+    if (cleaned.length > 10) {
+      return {
+        isValid: false,
+        error: `Phone number is too long (${cleaned.length}/10 digits). Standard mobile numbers have 10 digits (e.g. 07XXXXXXXX or 01XXXXXXXX).`,
+      };
+    }
+    return { isValid: true, normalized: "254" + cleaned.slice(1) };
+  }
 
-  return null;
+  // Handle 9-digit format without leading 0 (e.g. 7XXXXXXXX or 1XXXXXXXX)
+  if (cleaned.startsWith("7") || cleaned.startsWith("1")) {
+    if (cleaned.length < 9) {
+      return {
+        isValid: false,
+        error: `Phone number is too short (${cleaned.length}/9 digits). Standard format is 7XXXXXXXX or 1XXXXXXXX (or 07... / 01...).`,
+      };
+    }
+    if (cleaned.length > 9) {
+      return {
+        isValid: false,
+        error: `Phone number is too long (${cleaned.length}/9 digits). Please check the digits entered.`,
+      };
+    }
+    return { isValid: true, normalized: "254" + cleaned };
+  }
+
+  return {
+    isValid: false,
+    error: "Invalid phone format. Kenyan phone numbers must start with 07, 01, 254, or +254 (e.g. 0712345678 or 0180640161).",
+  };
 }
 
 // Hardcoded PayHero credentials for channel 15847. Env vars take precedence.
@@ -122,10 +207,11 @@ export default async function handler(req: any, res: any) {
       (typeof body.phone_number === "string" ? body.phone_number : undefined) ??
       (typeof body.msisdn === "string" ? body.msisdn : undefined);
 
-    const normalizedPhone = normalizePhoneNumber(rawPhone);
-    if (!normalizedPhone) {
-      return res.status(400).json({ success: false, message: "Invalid phone number format" });
+    const phoneValidation = validateAndNormalizePhone(rawPhone);
+    if (!phoneValidation.isValid) {
+      return res.status(400).json({ success: false, message: phoneValidation.error });
     }
+    const normalizedPhone = phoneValidation.normalized!;
 
     const amount = Number(body.amount);
     if (!Number.isFinite(amount) || amount <= 0) {

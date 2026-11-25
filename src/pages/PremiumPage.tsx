@@ -77,12 +77,16 @@ const PremiumPage = () => {
   const [packages, setPackages] = useState<PremiumPackage[]>(DEFAULT_PACKAGES);
   const [selectedPkg, setSelectedPkg] = useState<PremiumPackage | null>(null);
   const [paymentStep, setPaymentStep] = useState<"phone" | "processing" | "success" | "failed">("phone");
-  const [phone, setPhone] = useState(profile?.phone || "+254");
+  const [phone, setPhone] = useState(
+    profile?.phone && profile.phone !== "+254" && profile.phone.replace(/\D/g, "").length >= 9
+      ? profile.phone
+      : ""
+  );
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (profile?.phone && profile.phone.length >= 10) {
+    if (profile?.phone && profile.phone !== "+254" && profile.phone.replace(/\D/g, "").length >= 9) {
       setPhone(profile.phone);
     }
   }, [profile?.phone]);
@@ -133,8 +137,9 @@ const PremiumPage = () => {
 
     if (!selectedPkg) return;
 
-    if (!phone || phone.replace(/\D/g, "").length < 9) {
-      toast.error("Please enter a valid M-Pesa phone number (e.g. 0712345678)");
+    const validation = MpesaService.validatePhone(phone);
+    if (!validation.isValid) {
+      toast.error(validation.error || "Please enter a valid M-Pesa phone number");
       return;
     }
 
@@ -402,13 +407,10 @@ const PremiumPage = () => {
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="07XX XXX XXX or 254..."
+                        placeholder="Enter phone number"
                         className="w-full pl-10 pr-4 py-3.5 rounded-xl bg-secondary border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/40 transition-all"
                       />
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      Supported: Safaricom M-Pesa (e.g. 0712345678, 0112345678, 254712345678)
-                    </p>
                   </div>
 
                   {/* Summary Box */}
@@ -438,7 +440,7 @@ const PremiumPage = () => {
                     <button
                       type="button"
                       onClick={handleSendSTK}
-                      disabled={phone.replace(/\D/g, "").length < 9}
+                      disabled={isProcessing}
                       className="flex-[2] py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                     >
                       <Smartphone className="w-4 h-4" />

@@ -4,6 +4,7 @@ import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, Sparkles, CheckCircle
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { trackCompleteRegistration } from '@/lib/metaPixel';
+import { MpesaService } from '@/lib/mpesa';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function AuthPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '+254',
+    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -32,8 +33,9 @@ export default function AuthPage() {
         newErrors.name = 'Full name is required';
       }
       
-      if (!formData.phone.trim() || formData.phone.length < 10) {
-        newErrors.phone = 'Valid phone number is required';
+      const phoneValidation = MpesaService.validatePhone(formData.phone);
+      if (!phoneValidation.isValid) {
+        newErrors.phone = phoneValidation.error || 'Please enter a valid phone number';
       }
 
       if (formData.password !== formData.confirmPassword) {
@@ -207,7 +209,7 @@ export default function AuthPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="+254 7XX XXX XXX"
+                    placeholder="Enter phone number"
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
                   />
                 </div>

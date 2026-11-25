@@ -29,7 +29,9 @@ interface Props {
 
 const UnlockCategoriesModal = ({ open, onClose, unlockedCategories, onUnlock, userId, userPhone }: Props) => {
   const [stkCat, setStkCat] = useState<typeof categories[0] | null>(null);
-  const [phone, setPhone] = useState(userPhone || "+254");
+  const [phone, setPhone] = useState(
+    userPhone && userPhone !== "+254" && userPhone.replace(/\D/g, "").length >= 9 ? userPhone : ""
+  );
   const [stkStep, setStkStep] = useState<"form" | "processing" | "success" | "failed">("form");
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
@@ -42,8 +44,9 @@ const UnlockCategoriesModal = ({ open, onClose, unlockedCategories, onUnlock, us
   };
 
   const submitStk = async () => {
-    if (!phone || phone.replace(/\D/g, "").length < 9) {
-      toast.error("Please enter a valid phone number");
+    const validation = MpesaService.validatePhone(phone);
+    if (!validation.isValid) {
+      toast.error(validation.error || "Please enter a valid phone number");
       return;
     }
     if (!userId || !stkCat) {
@@ -65,6 +68,7 @@ const UnlockCategoriesModal = ({ open, onClose, unlockedCategories, onUnlock, us
     );
 
     if (!result.success || !result.checkoutRequestId) {
+      toast.error(result.error || "Failed to initiate payment");
       setStkStep("failed");
       setIsProcessing(false);
       return;
@@ -195,7 +199,7 @@ const UnlockCategoriesModal = ({ open, onClose, unlockedCategories, onUnlock, us
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+254 7XX XXX XXX"
+                    placeholder="Enter phone number"
                     className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </div>

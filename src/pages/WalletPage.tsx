@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Smartphone, CheckCircle2, AlertCircle, ArrowDownToLine, Clock, Home, ArrowDown, CreditCard, User, Send, Loader2, Crown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { MpesaService } from "@/lib/mpesa";
 import MinWithdrawModal from "@/components/MinWithdrawModal";
 import UnlockCategoriesModal from "@/components/UnlockCategoriesModal";
 import AccountActivationModal from "@/components/AccountActivationModal";
@@ -19,7 +20,11 @@ interface Transaction {
 const WalletPage = () => {
   const navigate = useNavigate();
   const { profile, user, refreshProfile } = useAuth();
-  const [phone, setPhone] = useState(profile?.phone || '+254');
+  const [phone, setPhone] = useState(
+    profile?.phone && profile.phone !== '+254' && profile.phone.replace(/\D/g, '').length >= 9
+      ? profile.phone
+      : ''
+  );
   const [amount, setAmount] = useState("");
   const [step, setStep] = useState<"form" | "processing" | "success" | "error" | "premiumRequired">("form");
   const [errorMsg, setErrorMsg] = useState("");
@@ -161,8 +166,9 @@ const WalletPage = () => {
       setStep("error");
       return;
     }
-    if (!phone || phone.length < 10) {
-      setErrorMsg("Please enter a valid M-Pesa number");
+    const validation = MpesaService.validatePhone(phone);
+    if (!validation.isValid) {
+      setErrorMsg(validation.error || "Please enter a valid M-Pesa phone number");
       setStep("error");
       return;
     }
@@ -272,7 +278,7 @@ const WalletPage = () => {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+254 7XX XXX XXX"
+                  placeholder="Enter phone number"
                   className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
                 />
               </div>

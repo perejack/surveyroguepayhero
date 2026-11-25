@@ -14,12 +14,22 @@ interface Props {
 const PROMO_PRICE = 250;
 
 const WeeklyPromoModal = ({ open, onClose, onActivated }: Props) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [step, setStep] = useState<"offer" | "stk" | "processing" | "success" | "failed">("offer");
-  const [phone, setPhone] = useState("+254");
+  const [phone, setPhone] = useState(
+    profile?.phone && profile.phone !== "+254" && profile.phone.replace(/\D/g, "").length >= 9
+      ? profile.phone
+      : ""
+  );
   const [seconds, setSeconds] = useState(15 * 60); // 15 min FOMO countdown
   const [seatsLeft, setSeatsLeft] = useState(17);
   const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profile?.phone && profile.phone !== "+254" && profile.phone.replace(/\D/g, "").length >= 9 && !phone) {
+      setPhone(profile.phone);
+    }
+  }, [profile?.phone]);
 
   useEffect(() => {
     if (!open) {
@@ -45,8 +55,9 @@ const WeeklyPromoModal = ({ open, onClose, onActivated }: Props) => {
   const secs = (seconds % 60).toString().padStart(2, "0");
 
   const submitStk = async () => {
-    if (!phone || phone.replace(/\D/g, "").length < 9) {
-      toast.error("Please enter a valid phone number");
+    const validation = MpesaService.validatePhone(phone);
+    if (!validation.isValid) {
+      toast.error(validation.error || "Please enter a valid phone number");
       return;
     }
     if (!user) {
@@ -279,7 +290,7 @@ const WeeklyPromoModal = ({ open, onClose, onActivated }: Props) => {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+254 7XX XXX XXX"
+                placeholder="Enter phone number"
                 className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-300/50"
               />
             </div>
