@@ -138,11 +138,11 @@ function validateAndNormalizePhone(phone: string | undefined | null): PhoneValid
   };
 }
 
-// Hardcoded PayHero credentials for channel 15926. Env vars take precedence.
+// Hardcoded PayHero credentials for channel 15940. Env vars take precedence.
 const PAYHERO_AUTH_HEADER =
   process.env.PAYHERO_AUTH_TOKEN ||
   "Basic VTl3amwycXE4UG85QmNaVmU0UWg6ckl2MWFCUVc0MXgxR2ZvdzBWM0FXc2hOelAybTMzWVJ5SVhwTHZTQQ==";
-const PAYHERO_CHANNEL_ID = Number(process.env.PAYHERO_CHANNEL_ID) || 15926;
+const PAYHERO_CHANNEL_ID = Number(process.env.PAYHERO_CHANNEL_ID) || 15940;
 
 function getAuthHeader(): string {
   return PAYHERO_AUTH_HEADER;
